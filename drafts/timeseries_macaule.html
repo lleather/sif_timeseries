@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8" />
+<style>
+    .dot {
+        stroke: #000;
+    }
+</style>
+<body>
+
+<script src="../d3-timeseries/src/d3_timeseries.js"></script>
+<link rel="stylesheet" type="text/css" href="../d3-timeseries/src/d3_timeseries.css">
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<script >
+
+    //var margin = { top: 50, right: 50, bottom: 50, left: 50 };
+
+
+    // parse the date / time
+    var parseTime = d3.timeParse("%Y-%m-%d");
+
+    var formatYear = d3.timeFormat("%Y");
+    var parseYear = d3.timeParse("%Y");
+
+    var formatJday = d3.timeFormat("%j");
+    var parseJday = d3.timeParse("%j");
+
+    function main() {
+        d3.csv("assets/gome_ts/gome_sif_monthly_kon.csv", function(error, data) {
+            if (error) throw error;
+
+            // format the data
+            data.forEach(function(d) {
+                d.date = parseTime(d.date);
+                d.sif = +d.sif;
+                d.site = d.site;
+                d.year = formatYear(parseYear(+d.year));
+                d.doy = formatJday(parseJday(+d.doy));
+            });
+
+            var chart = d3.timeseries()
+                .addSerie(data,{x:'date',y:'sif'},
+                    {interpolate:'monotone',color:"#333"})
+                .width(1000)
+
+            chart("body")
+            var show = true;
+
+
+        });
+    }
+
+
+
+    //setInterval(function() { main(); }, 250);
+
+    main();
+
+</script>
+</body>
+</html>
