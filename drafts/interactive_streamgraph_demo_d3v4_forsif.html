@@ -134,9 +134,9 @@
                 tooltip.transition()
                     .duration(700)
                     .style("opacity", 1);
-                //tooltip.html("Cantidad: " + "#familiares")
-                //    .style("left", (d3.event.pageX + 5) + "px")
-                //    .style("top", (d3.event.pageY - 28) + "px");
+                tooltip.html("Cantidad: " + "#familiares")
+                    .style("left", (d3.event.pageX + 5) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");
             })
             .on('mouseout', function(d){
                 d3.select(this).style('fill',
