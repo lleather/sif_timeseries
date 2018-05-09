@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
 
-    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3.v5.js"></script>
 
 
     <link rel="stylesheet" href="css/style.css" />
@@ -80,8 +80,7 @@
 
 
     // Get the data
-    d3.csv("assets/gome_ts/gome_sif_monthly_mult_forjs.csv", function(error, data) {
-        if (error) throw error;
+    d3.csv("assets/gome_ts/gome_sif_monthly_mult_forjs.csv").then(function(data) {
 
         // format the data
         data.forEach(function(d) {
