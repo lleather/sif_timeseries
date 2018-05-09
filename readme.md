@@ -20,11 +20,9 @@ These data displayed are monthly averages of daily average solar-induced chlorop
 
 ## Major Functions
 
-### html functions
+### js functions
 
-
-
-**Multiple series plotted by nesting data**
+* **Multiple series plotted by nesting data**
 
 In order to visualize multiple variables separately, in a ["long"](https://sejdemyr.github.io/r-tutorials/basics/wide-and-long/) dataset, I [nested](https://amber.rbind.io/blog/2017/05/02/d3nest/) the dataframe by a grouping variable, "name", which is unique for each site in the dataset. 
 
@@ -39,13 +37,15 @@ In order to visualize multiple variables separately, in a ["long"](https://sejde
 ​```
 ```
 
-**Line plotted using interpolation**
+* **Line plotted using interpolation**
 
 Creating a line based on interpolation between data points allows the tooltip display function to display continuous data, rather than only displaying data at points where the data appear in the original data set.
 
-**Interactive tooltip**
+* **Interactive tooltip**
 
 A mouseover function provides colored circles and text that represent the interpolated value for each group at the x-value where the mouse is located. The tooltip is only visible when the mouse is on the plot. 
+
+
 
 
 
