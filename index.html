@@ -7,7 +7,7 @@
 
 
     <link rel="stylesheet" href="css/style.css" />
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 
     <title>SIF Timeseries</title>
 
@@ -27,40 +27,22 @@
         width = 850 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
-    // parse the date / time
+    // write functions to parse the date / time variables.
     var parseTime = d3.timeParse("%Y-%m-%d");
     var formatTime = d3.timeFormat("%e %B");
 
+    // not used in plotting: functions to format time in terms of years and julian days, aka "day of year"
+    //var formatYear = d3.timeFormat("%Y");
+    //var parseYear = d3.timeParse("%Y");
 
-    var formatYear = d3.timeFormat("%Y");
-    var parseYear = d3.timeParse("%Y");
-
-    var formatJday = d3.timeFormat("%j");
-    var parseJday = d3.timeParse("%j");
+    //var formatJday = d3.timeFormat("%j");
+    //var parseJday = d3.timeParse("%j");
 
     // set the ranges
     var x = d3.scaleTime().range([0, width]);
     var y = d3.scaleLinear().range([height, 0]);
 
-    // define the line
-    var valueLine = d3.line()
-        .x(function(d) { return x(d.date); })
-        .y(function(d) { return y(+d.sif); })
-        .curve(d3.curveBasis); // interpolates the curve between points
-
-    // append the svg object to the body of the page
-    // appends a 'group' element to 'svg'
-    // moves the 'group' element to the top left margin
-
-    /*
-    // Define the div for the tooltip
-    var tooltip = d3.select("#chart").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
-    */
-
-
-    // Adds the svg canvas
+        // Adds the svg canvas
     var svg = d3.select("#chart")
         .append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -69,15 +51,16 @@
         .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
 
-
     // Set the color scheme
     var colors = d3.scaleOrdinal()
-        .domain(["US-KFS", "US-Kon", "Ca-Let", "US-SCg", "US-Var", "US-Seg"])
+        //.domain(["Kansas Field Station", "Konza Prairie LTER()", "S. Calif. Grassland", "Sevilleta grassland", "Vaira Ranch"])
         .range(["#5581BA", "#f3bb3b", "#dcdbdb", "#84aec8", "#dc4404" ]);
-        //.range(["#dc4404",  "#5581ba" ]);
 
-
-
+    // define the line function
+    var valueLine = d3.line()
+        .x(function(d) { return x(d.date); })
+        .y(function(d) { return y(+d.sif); })
+        .curve(d3.curveBasis); // interpolates the curve between points
 
     // Get the data
     d3.csv("assets/gome_ts/gome_sif_monthly_mult_forjs.csv").then(function(data) {
@@ -88,8 +71,8 @@
             d.sif = +d.sif;
             d.site = d.site;
             d.name = d.name;
-            d.year = formatYear(parseYear(+d.year));
-            d.doy = formatJday(parseJday(+d.doy));
+            //d.year = formatYear(parseYear(+d.year));
+            //d.doy = formatJday(parseJday(+d.doy));
         });
 
         // nest the data by group
@@ -170,8 +153,6 @@
                 return valueLine(d.values);
             });
 
-        // add a legend
-
         // add legend
         var legend = svg.append("g")
             .attr("class", "legend")
@@ -213,20 +194,24 @@
     var mouseG = svg.append("g")
         .attr("class", "mouse-over-effects");
 
-    mouseG.append("path") // this is the black vertical line to follow mouse
+    // add black vertical line to follow mouse
+    mouseG.append("path")
         .attr("class", "mouse-line")
         .style("stroke", "black")
         .style("stroke-width", "1px")
         .style("opacity", "0");
 
+    // identify plotted lines to add to mouse object
     var lines = document.getElementsByClassName('line');
 
+    //add our data to the mouse effects class
     var mousePerLine = mouseG.selectAll('.mouse-per-line')
         .data(nest)
         .enter()
         .append("g")
         .attr("class", "mouse-per-line");
 
+    // add circles on each line, to follow mouse function
     mousePerLine.append("circle")
         .attr("r", 7)
         .style("stroke", function(d) {
@@ -236,11 +221,15 @@
         .style("stroke-width", "1px")
         .style("opacity", "0");
 
+    // add text to follow mouse movement
     mousePerLine.append("text")
         .attr("transform", "translate(10,3)");
 
-    mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
-        .attr('width', width) // can't catch mouse events on a g element
+    // append a rect to catch mouse movements on canvas
+        // can't catch mouse events on a g element
+        // format rectangle to be an empty object, just made to catch the mouse events
+    mouseG.append('svg:rect')
+        .attr('width', width)
         .attr('height', height)
         .attr('fill', 'none')
         .attr('pointer-events', 'all')
@@ -252,6 +241,8 @@
             d3.selectAll(".mouse-per-line text")
                 .style("opacity", "0");
         })
+
+
         .on('mouseover', function() { // on mouse in show line, circles and text
             d3.select(".mouse-line")
                 .style("opacity", "1");
@@ -260,32 +251,46 @@
             d3.selectAll(".mouse-per-line text")
                 .style("opacity", "1");
         })
-        .on('mousemove', function() { // mouse moving over canvas
+
+
+        // collects data from mouse moving over canvas
+        //mouse[0] represents mouse position
+        .on('mousemove', function() {
             var mouse = d3.mouse(this);
             d3.select(".mouse-line")
                 .attr("d", function() {
                     var d = "M" + mouse[0] + "," + height;
                     d += " " + mouse[0] + "," + 0;
                     return d;
+
                 });
+
+
+            //i think this is a fancier version than may be strictly necessary
+            // but perhaps is required for nested data?
+
 
             d3.selectAll(".mouse-per-line")
                 .attr("transform", function(d, i) {
-                    console.log(width/mouse[0])
-                    var xDate = x.invert(mouse[0]),
+                    //console.log(width/mouse[0])
+                    //console.log(x.invert(mouse[0]))
+                    var xDate = x.invert(mouse[0]), // get x-value at mouseover
                         bisect = d3.bisector(function(d) { return d.date; }).right;
-                    idx = bisect(d.values, xDate);
+                    idx = bisect(d.values, xDate); // get index of y-value at x-value on mouseover
+                    //console.log(idx)
 
                     var beginning = 0,
                         end = lines[i].getTotalLength(),
                         target = null;
 
+
                     while (true){
-                        target = Math.floor((beginning + end) / 2);
+                        target = Math.floor((beginning + end) / 2); //default target is the middle of line
                         pos = lines[i].getPointAtLength(target);
                         if ((target === end || target === beginning) && pos.x !== mouse[0]) {
-                            break;
+                            break; // don't return anything if the mouse isn't on the rect
                         }
+                        //return position when mouse is within the length of the paths
                         if (pos.x > mouse[0])      end = target;
                         else if (pos.x < mouse[0]) beginning = target;
                         else break; //position found
@@ -294,7 +299,7 @@
                     d3.select(this).select('text')
                         .text(y.invert(pos.y).toFixed(2));
 
-                    return "translate(" + mouse[0] + "," + pos.y +")";
+                    return "translate(" + mouse[0] + "," + pos.y +")"; //this is returned as "transform" attribute of mouse-per-line
                 });
         });
     });
